@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EROS PROGRAM NOTES</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400&display=swap" rel="stylesheet">
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: 16px;
+      -webkit-text-size-adjust: 100%;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+
+      /* ── Atmospheric layered background ──
+         Companion treatment to the Eros Ascends question page.
+         Uses the same palette with adjusted bloom positions
+         suited to a longer, scrollable reading page.
+      */
+      background-color: #000000;
+      background-image:
+        radial-gradient(ellipse 60% 40% at 75% 8%,
+          rgba(204, 111, 152, 0.10) 0%,
+          transparent 70%),
+        radial-gradient(ellipse 80% 50% at 10% 55%,
+          rgba(0, 88, 96, 0.14) 0%,
+          transparent 60%),
+        radial-gradient(ellipse 50% 35% at 85% 80%,
+          rgba(0, 88, 96, 0.08) 0%,
+          transparent 55%),
+        radial-gradient(ellipse 45% 30% at 50% 35%,
+          rgba(255, 255, 255, 0.02) 0%,
+          transparent 60%),
+        linear-gradient(165deg,
+          #000000 0%,
+          #081a0e 20%,
+          #1a3825 45%,
+          #24442e 60%,
+          #003a40 80%,
+          #001a1e 100%);
+      background-attachment: fixed;
+
+      color: #ede6da;
+      min-height: 100dvh;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Page Layout ── */
+    .page {
+      max-width: 520px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 4rem 1.5rem 3.5rem;
+    }
+
+    /* ── Page Title ── */
+    .page-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: #f4ece0;
+      text-align: center;
+      margin-bottom: 1.75rem;
+    }
+
+    .page-title .subtitle {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 300;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #918880;
+      margin-top: 0.5rem;
+    }
+
+    /* ── Intro ── */
+    .page-intro {
+      font-size: 0.95rem;
+      line-height: 1.75;
+      color: #b8b0a2;
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+
+    /* ── Section Divider ──
+       Inspired by the question box gradient border on the Eros questions page.
+       Uses the same plum-to-pink shimmer palette with a soft glow. */
+    .divider {
+      width: 60%;
+      max-width: 280px;
+      height: 1px;
+      margin: 0 auto 2.5rem;
+      border: none;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        #6A2543 15%,
+        #D586A8 35%,
+        #6A2543 50%,
+        #D586A8 65%,
+        #6A2543 85%,
+        transparent 100%);
+      box-shadow:
+        0 0 6px rgba(213, 134, 168, 0.12),
+        0 0 1px rgba(213, 134, 168, 0.2);
+    }
+
+    /* ── Program Note Section ── */
+    .note-section {
+      margin-bottom: 0;
+    }
+
+    .note-title {
+      font-size: 1.15rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: #f4ece0;
+      margin-bottom: 0.5rem;
+    }
+
+    .note-composer {
+      font-size: 0.82rem;
+      font-weight: 300;
+      color: #918880;
+      letter-spacing: 0.03em;
+      margin-bottom: 0;
+    }
+
+    /* ── Accordion ── */
+    .accordion-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      padding: 0.5rem 0 1.5rem;
+      border: none;
+      background: none;
+      text-align: left;
+      width: 100%;
+      font-family: inherit;
+      color: inherit;
+    }
+
+    .accordion-header:focus-visible {
+      outline: 1px solid rgba(106, 37, 67, 0.5);
+      outline-offset: 4px;
+      border-radius: 4px;
+    }
+
+    .accordion-label {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .accordion-label .note-title,
+    .accordion-label .note-composer {
+      pointer-events: none;
+    }
+
+    /* Chevron indicator */
+    .accordion-chevron {
+      flex-shrink: 0;
+      width: 14px;
+      height: 14px;
+      margin-top: 0.35rem;
+      transition: transform 0.3s ease;
+      opacity: 0.4;
+    }
+
+    .accordion-chevron polyline {
+      stroke: #b8b0a2;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .note-section[data-open="true"] .accordion-chevron {
+      transform: rotate(180deg);
+      opacity: 0.55;
+    }
+
+    /* Expandable content area */
+    .accordion-content {
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.45s ease, opacity 0.35s ease;
+    }
+
+    .note-section[data-open="true"] .accordion-content {
+      opacity: 1;
+    }
+
+    .accordion-inner {
+      padding-top: 0.5rem;
+      padding-bottom: 1rem;
+    }
+
+    /* ── Static entry (no accordion, e.g. Jared Ray Gilmore) ── */
+    .note-section-static {
+      margin-bottom: 0;
+      padding: 0.5rem 0 1.5rem;
+    }
+
+    /* ── Note Body ── */
+    .note-body p {
+      font-size: 0.95rem;
+      line-height: 1.8;
+      color: #d8d0c4;
+      margin-bottom: 1.4rem;
+    }
+
+    .note-body p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* ── Poetry / Source Text ── */
+    .poem-block {
+      margin: 2.2rem 0;
+      padding-left: 1.25rem;
+      border-left: 1px solid rgba(106, 37, 67, 0.35);
+    }
+
+    .poem-label {
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #918880;
+      margin-bottom: 1rem;
+    }
+
+    .poem-block p {
+      font-size: 0.9rem;
+      font-style: italic;
+      line-height: 1.85;
+      color: #c8c0b4;
+      margin-bottom: 0;
+    }
+
+    .poem-block .stanza {
+      margin-bottom: 1.2rem;
+    }
+
+    .poem-block .stanza:last-child {
+      margin-bottom: 0;
+    }
+
+    /* ── Roxana's Song Inline Poetry ── */
+    .inline-verse {
+      margin: 1.8rem 0;
+      padding-left: 1.25rem;
+      border-left: 1px solid rgba(106, 37, 67, 0.35);
+    }
+
+    .inline-verse p {
+      font-size: 0.9rem;
+      font-style: italic;
+      line-height: 1.85;
+      color: #c8c0b4;
+      margin-bottom: 0;
+    }
+
+    /* ── Back to Top ── */
+    .top-link {
+      display: block;
+      text-align: center;
+      margin-top: 4rem;
+      padding-bottom: 1rem;
+      font-size: 0.75rem;
+      color: #918880;
+      text-decoration: underline;
+      letter-spacing: 0.03em;
+      transition: color 0.2s ease;
+    }
+
+    .top-link:hover {
+      color: #b8b0a2;
+    }
+
+    /* ── Footer Link ── */
+    .footer-link {
+      display: block;
+      text-align: center;
+      margin-top: 1rem;
+      padding-bottom: 2rem;
+      font-size: 0.75rem;
+      color: #918880;
+      text-decoration: underline;
+      letter-spacing: 0.03em;
+      transition: color 0.2s ease;
+    }
+
+    .footer-link:hover {
+      color: #b8b0a2;
+    }
+
+    /* ── Responsive ── */
+    @media (min-width: 600px) {
+      .page-title {
+        font-size: 1.8rem;
+      }
+
+      .page {
+        padding: 5rem 2rem 4rem;
+      }
+
+      .note-title {
+        font-size: 1.25rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <article class="page" id="top">
+
+    <h1 class="page-title">Eros Ascends<span class="subtitle">Program Notes</span></h1>
+
+    <hr class="divider">
+
+    <!-- ════════════════════════════════════════════
+         1. Chant de Roxane — Szymanowski / Kochański
+         ════════════════════════════════════════════ -->
+    <section class="note-section" data-open="true">
+      <button class="accordion-header" aria-expanded="true">
+        <div class="accordion-label">
+          <h2 class="note-title">Chant du Roxanne</h2>
+          <p class="note-composer">Karol Szymanowski (1882–1937), transcribed by Paweł Kochański (1887–1934)</p>
+        </div>
+        <svg class="accordion-chevron" viewBox="0 0 14 14" aria-hidden="true">
+          <polyline points="2,5 7,10 12,5"/>
+        </svg>
+      </button>
+
+      <div class="accordion-content">
+        <div class="accordion-inner">
+          <div class="note-body">
+            <p>Polish composer Karol Szymanowski and violinist Paweł Kochański shared one of the most generative artistic partnerships of the early twentieth century—artistically inseparable, and deeply personal. Kochański was not only the foremost interpreter of Szymanowski's violin music, but a shaping presence within it: advising, refining, and drawing out a language of sound that feels almost inseparable from his own playing.</p>
+
+            <p>There is, too, a current of intimacy that runs beneath this collaboration—one that has often been read through the lens of queer desire. Szymanowski, who was gay, channeled that sensibility into his artistic world. While the exact nature of his relationship with Kochański remains undocumented, their collaboration suggests a shared sensitivity and closeness that resonates in the music itself. In that light, this transcription can be heard not simply as adaptation, but as a kind of exchange: a musical language passed between two artists attuned to one another's expression.</p>
+
+            <p>Chant de Roxane originates in Szymanowski's opera <em>King Roger</em>, where the vocal line unfolds with an almost hypnotic sense of suspension and allure. In Kochański's transcription, that line is carried into the violin—no longer sung, but still unmistakably vocal in its impulse.</p>
+
+            <p>What begins as a voice becomes something more physical: the act of singing translated into touch, into pressure, into motion across the string. The line stretches, ornaments, and lingers, as if prolonging contact rather than arriving anywhere definite.</p>
+
+            <p>What Kochański creates here is not a reduction of the original, but an intensification. The violin does not imitate the voice—it inhabits it, extends it, and in doing so, makes the line feel even more immediate, more exposed. Ornament becomes touch. Suspension becomes anticipation. The music lingers in that charged space where expression and sensation begin to blur.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ════════════════════════════════════════════
+         2. Unbewegte laue Luft — Brahms
+         ════════════════════════════════════════════ -->
+    <section class="note-section" data-open="false">
+      <button class="accordion-header" aria-expanded="false">
+        <div class="accordion-label">
+          <h2 class="note-title">"Unbewegte laue Luft" Op. 57, No. 8 (1871)</h2>
+          <p class="note-composer">Johannes Brahms (1833–1897)</p>
+        </div>
+        <svg class="accordion-chevron" viewBox="0 0 14 14" aria-hidden="true">
+          <polyline points="2,5 7,10 12,5"/>
+        </svg>
+      </button>
+
+      <div class="accordion-content">
+        <div class="accordion-inner">
+          <div class="note-body">
+            <p>Brahms composed this song in 1871 on a poem by Georg Friedrich Daumer, whose writing moved through desire with a directness that was striking for its time. In a culture where intimacy was often veiled or idealized, Daumer's language lingers in sensation, in the body, in the charged stillness between thought and touch. Brahms was drawn to these texts for their concentration and immediacy, leaning into the intensity of wanting rather than turning away from it.</p>
+
+            <p>The air is warm. Unmoving. A garden held in night. Nothing unfolds in the usual sense, yet everything is already underway.</p>
+
+            <p>Listen for how little the music seems to move at first. The stillness is not empty. It is full, almost pressurized. Notice how the piano sustains the atmosphere, and how the voice does not break it, but grows out of it. In the upper register, small flickers of sound, like trills, briefly disturb the surface, suggesting the quiet motion of the fountain in the garden. Small shifts in harmony and color begin to carry weight. The intensity does not announce itself. It gathers.</p>
+
+            <p>And then, almost without warning, the surface breaks. The piano begins to move in quick, flowing figures, and the voice becomes more urgent, more expansive. What had been contained now begins to circulate. The desire that had been held in stillness moves outward, passes between voice and piano, and fills the space with motion. It does not erupt, but unfolds, gaining warmth, breadth, and presence as it moves. The body of the music awakens.</p>
+
+            <p>As the song moves toward its close, that motion gradually softens. The energy does not disappear, but settles into a more open, luminous space. The harmony shifts, moving from C minor toward C major, and the atmosphere clears. What remains is a quiet arrival, where what once pressed inward now rests outward, and stillness returns, not empty, but changed.</p>
+          </div>
+
+          <div class="poem-block">
+            <p class="poem-label">Unbewegte laue Luft</p>
+            <p class="poem-label" style="text-transform: none; font-weight: 300; font-style: italic; margin-top: -0.5rem;">German source: Georg Friedrich Daumer</p>
+            <p class="stanza">Unbewegte laue Luft,<br>
+              Tiefe Ruhe der Natur;<br>
+              Durch die stille Gartennacht<br>
+              Plätschert die Fontäne nur;</p>
+            <p class="stanza">Aber im Gemüte schwillt<br>
+              Heißere Begierde mir;<br>
+              Aber in der Ader quillt<br>
+              Leben und verlangt nach Leben.</p>
+            <p class="stanza">Sollten nicht auch deine Brust<br>
+              Sehnlichere Wünsche heben?<br>
+              Sollte meiner Seele Ruf<br>
+              Nicht die deine tief durchbeben?</p>
+            <p class="stanza">Leise mit dem Ätherfuß<br>
+              Säume nicht, daher zu schweben!<br>
+              Komm, o komm, damit wir uns<br>
+              Himmlische Genüge geben!</p>
+          </div>
+
+          <div class="poem-block">
+            <p class="poem-label">Motionless mild air</p>
+            <p class="poem-label" style="text-transform: none; font-weight: 300; font-style: italic; margin-top: -0.5rem;">English translation © Richard Stokes</p>
+            <p class="stanza">Motionless mild air,<br>
+              Nature deep at rest;<br>
+              Through the still garden night<br>
+              Only the fountain plashes;</p>
+            <p class="stanza">But my soul swells<br>
+              With a more ardent desire;<br>
+              Life surges in my veins<br>
+              And yearns for life.</p>
+            <p class="stanza">Should not your breast too<br>
+              Heave with more passionate longing?<br>
+              Should not the cry of my soul<br>
+              Quiver deeply through your own?</p>
+            <p class="stanza">Softly on ethereal feet<br>
+              Glide to me, do not delay!<br>
+              Come, ah! come, that we might<br>
+              Give each other heavenly satisfaction!</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ════════════════════════════════════════════
+         3. Chanson triste — Duparc
+         ════════════════════════════════════════════ -->
+    <section class="note-section" data-open="false">
+      <button class="accordion-header" aria-expanded="false">
+        <div class="accordion-label">
+          <h2 class="note-title">"Chanson triste" (1869)</h2>
+          <p class="note-composer">Henri Duparc (1848–1933)</p>
+        </div>
+        <svg class="accordion-chevron" viewBox="0 0 14 14" aria-hidden="true">
+          <polyline points="2,5 7,10 12,5"/>
+        </svg>
+      </button>
+
+      <div class="accordion-content">
+        <div class="accordion-inner">
+          <div class="note-body">
+            <p>In his early life, Henri Duparc's music was driven by a deep responsiveness to beauty—an impulse to shape feeling into sound. By his mid-thirties, a debilitating illness brought his compositional life to a halt, leaving him unable to sustain the intense creative focus his work required. In the years that followed, his religious life deepened, drawing him toward greater inwardness, restraint, and clarity of purpose. He ultimately destroyed most of what he had written, preserving only a small number of works—primarily a group of roughly seventeen songs he allowed to remain. Written when Duparc was about 20 years old, <em>Chanson triste</em> is one of them.</p>
+
+            <p>The text offers consolation through closeness, and the music meets it with quiet restraint. Nothing is forced outward; instead, the song holds its emotional life in suspension. The warmth is real, but contained.</p>
+
+            <p>Duparc's writing is less about melody than about atmosphere—how harmony, pacing, and color create a space the voice can inhabit. The piano lays this ground first: a gentle, continuous unfolding where shifts in harmony carry emotional weight. Rather than accompanying, it sustains the world of the song.</p>
+
+            <p>Within that space, the voice moves simply and directly. The line rarely reaches for display; instead, it follows the natural shape of the text, allowing small inflections—changes of color, slight expansions of phrase—to carry meaning. As the poem turns toward intimacy and reassurance, the music deepens almost imperceptibly—not through contrast, but through a quiet intensification of harmony and texture.</p>
+
+            <p>Listening closely, the expressive life of the song lives between the lines: in the way the piano supports and shades each phrase, in the way the voice settles into that space, and in the way both resist urgency. Nothing is rushed, and nothing is overstated.</p>
+
+            <p>What remains is a kind of longing that does not resolve, but stays—present, sustained, and quietly alive.</p>
+          </div>
+
+          <div class="poem-block">
+            <p class="poem-label" style="text-transform: none;">French source</p>
+            <p class="stanza">Dans ton cœur dort un clair de lune,<br>
+              Un doux clair de lune d'été,<br>
+              Et pour fuir la vie importune,<br>
+              Je me noierai dans ta clarté.</p>
+            <p class="stanza">J'oublierai les douleurs passées,<br>
+              Mon amour, quand tu berceras<br>
+              Mon triste cœur et mes pensées<br>
+              Dans le calme aimant de tes bras.</p>
+            <p class="stanza">Tu prendras ma tête malade,<br>
+              Oh! quelquefois sur tes genoux,<br>
+              Et lui diras une ballade<br>
+              Qui semblera parler de nous;</p>
+            <p class="stanza">Et dans tes yeux pleins de tristesse,<br>
+              Dans tes yeux alors je boirai<br>
+              Tant de baisers et de tendresse<br>
+              Que peut-être je guérirai.</p>
+          </div>
+
+          <div class="poem-block">
+            <p class="poem-label" style="text-transform: none;">English translation</p>
+            <p class="stanza">In your heart sleeps a moonlight,<br>
+              A sweet moonlight of summer,<br>
+              And to flee the importunate life,<br>
+              I will drown myself in your brightness.</p>
+            <p class="stanza">I will forget the past sorrows,<br>
+              My love, when you will cradle<br>
+              My sad heart and my thoughts<br>
+              In the loving calm of your arms.</p>
+            <p class="stanza">You will take my ailing head,<br>
+              Oh! sometimes upon your knees,<br>
+              And will say to it a ballad<br>
+              Which will seem to speak of us;</p>
+            <p class="stanza">And in your eyes full of sadness,<br>
+              In your eyes then I will drink<br>
+              So many kisses and such tenderness<br>
+              That perhaps I will be healed.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ════════════════════════════════════════════
+         Jared Ray Gilmore — static entry, no accordion
+         ════════════════════════════════════════════ -->
+    <section class="note-section-static">
+      <h2 class="note-title">Jared Ray Gilmore</h2>
+      <p class="note-composer">announced from piano</p>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ════════════════════════════════════════════
+         4. Calling You — Telson / arr. Maughan
+         ════════════════════════════════════════════ -->
+    <section class="note-section" data-open="false">
+      <button class="accordion-header" aria-expanded="false">
+        <div class="accordion-label">
+          <h2 class="note-title">"Calling You" from <em>Bagdad Cafe</em></h2>
+          <p class="note-composer">Bob Telson (b. 1949), arr. Nicholas Maughan (1985)</p>
+        </div>
+        <svg class="accordion-chevron" viewBox="0 0 14 14" aria-hidden="true">
+          <polyline points="2,5 7,10 12,5"/>
+        </svg>
+      </button>
+
+      <div class="accordion-content">
+        <div class="accordion-inner">
+          <div class="note-body">
+            <p>A quiet voice, suspended in space, sends something outward.</p>
+
+            <p>Bob Telson wrote <em>Calling You</em> for <em>Bagdad Cafe</em>, a film set on the edge of the Mojave Desert, where isolation shapes every interaction. The song emerges from that landscape, not as commentary but as atmosphere. It does not describe the distance. It inhabits it.</p>
+
+            <p>The text is spare, a message sent across miles, offered without knowing if it will be received. Telson's setting resists dramatizing that gesture. The harmony moves slowly, often circling rather than progressing, and the pacing allows silence to remain present alongside sound. What we hear is not urgency, but persistence.</p>
+
+            <p>In this way, the piece opens into Eros—not as climax or pursuit, but as sustained orientation. Desire here does not build toward possession. It continues, quietly and steadily, across distance. The voice does not reach its destination. It remains turned toward it.</p>
+
+            <p>Listen for how the music holds that state. Phrases often feel as though they could resolve, but do not. Repetition becomes a form of staying rather than returning. The line hovers, carried by breath, resisting closure.</p>
+
+            <p>Also listen for the relationship between motion and stillness, how little the harmony needs to shift to keep the piece alive, how space itself becomes part of the music.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ════════════════════════════════════════════
+         5. Piano Sonata No. 4 — Scriabin
+         ════════════════════════════════════════════ -->
+    <section class="note-section" data-open="false">
+      <button class="accordion-header" aria-expanded="false">
+        <div class="accordion-label">
+          <h2 class="note-title">Piano Sonata No. 4 in F-sharp major, Op. 30 (1903)</h2>
+          <p class="note-composer">Alexander Scriabin (1872–1915)</p>
+        </div>
+        <svg class="accordion-chevron" viewBox="0 0 14 14" aria-hidden="true">
+          <polyline points="2,5 7,10 12,5"/>
+        </svg>
+      </button>
+
+      <div class="accordion-content">
+        <div class="accordion-inner">
+          <div class="note-body">
+            <p>Scriabin's Fourth Sonata begins in suspension.</p>
+
+            <p>The first movement holds us in a kind of distance—quiet, searching, not yet arrived. A single line reaches upward, as if feeling its way through the dark. The harmony doesn't settle; it hovers, glows, withdraws. What we hear is not resolution, but orientation: something sensed before it is touched. This opening Andante sets the conditions for everything that follows. The music leans forward, but never quite lands. It listens for itself.</p>
+
+            <p>Then, without break, the second movement ignites. Marked <em>Prestissimo volando</em>—very fast, flying—the sonata releases into motion. What had been contained begins to circulate. Arpeggios flash upward, harmonies stretch past their edges, and the entire instrument seems to shimmer with momentum. The upward reach of the first movement is no longer searching; it becomes propulsion. This is not arrival in the sense of rest. It is arrival as intensification.</p>
+
+            <p>Scriabin was writing at a moment when his musical language was opening outward—toward color, ecstasy, and a kind of radiant instability that would define his later work. Even here, before the harmonic world fully dissolves into his later mysticism, we hear the impulse clearly: music that does not resolve so much as transform.</p>
+
+            <p>Listen for how the sonata moves between states of being. In the first movement, the sound feels distant, almost interior—phrases suspended in air, as if waiting to take shape. In the second, that same material returns altered: brighter, faster, more exposed. What had been felt privately is now fully in motion, shared, undeniable. Across the arc of the sonata, something shifts. What begins as reach becomes contact—not through stillness, but through energy that continues to unfold even as it arrives.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ════════════════════════════════════════════
+         6. Pieśń Roksany — Szymanowski
+         ════════════════════════════════════════════ -->
+    <section class="note-section" data-open="false">
+      <button class="accordion-header" aria-expanded="false">
+        <div class="accordion-label">
+          <h2 class="note-title">"Pieśń Roksany" from <em>Król Roger</em>, Op. 46 (1925)</h2>
+          <p class="note-composer">Karol Szymanowski (1882–1937)</p>
+        </div>
+        <svg class="accordion-chevron" viewBox="0 0 14 14" aria-hidden="true">
+          <polyline points="2,5 7,10 12,5"/>
+        </svg>
+      </button>
+
+      <div class="accordion-content">
+        <div class="accordion-inner">
+          <div class="note-body">
+            <p>Karol Szymanowski's only opera, <em>King Roger</em>, Op. 46, unfolds as a confrontation between order and ecstasy when a mysterious Shepherd enters King Roger's court, bringing with him a vision of life shaped not by restraint, but by beauty, instinct, and release. By the second act, the Shepherd's vision has begun to take hold of the court, loosening the structures that sustain Roger's authority.</p>
+
+            <p>Roxana, the queen at Roger's side, steps into that shift and sings:</p>
+          </div>
+
+          <div class="inline-verse">
+            <p>Sleep now, royal dreams…<br>
+              Let the night give you its fragrances…<br>
+              Let silence lull you…<br>
+              Let will and anger come to rest…</p>
+            <p style="margin-top: 1.2rem;">There, where beauty wanders…<br>
+              Where the air trembles with scent…<br>
+              There I will go after you…<br>
+              There I will find you…</p>
+            <p style="margin-top: 1.2rem;">Come to me, O radiant one…<br>
+              Come in the quiet of evening…<br>
+              Bring me the sweetness of night…<br>
+              And the peace of hidden gardens…</p>
+            <p style="margin-top: 1.2rem;">Let me rest beside you…<br>
+              Let me vanish in your light…<br>
+              Let desire fall silent…<br>
+              In your embrace…</p>
+          </div>
+
+          <div class="note-body" style="margin-top: 2rem;">
+            <p>By the third act, the court has dissolved, and Roger stands alone among its ruins, searching for meaning after what the Shepherd set in motion. Roxana's song is the point at which the distance between order and ecstasy gives way.</p>
+
+            <p>Heard again at the end of our concert, "Roxana's Song" closes the arc of our evening, returning us to where we began: what we first heard as distance and pull now arrives as closeness, contact, and rest.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <a class="top-link" href="#top">Back to top</a>
+    <a class="footer-link" href="https://www.proximaslc.com" target="_blank" rel="noopener">Learn more about Proxima</a>
+
+  </article>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // ── Accordion toggle ──
+      // Uses max-height for smooth expand/collapse transitions.
+      // Only one section open at a time (optional mutual exclusion).
+
+      var sections = document.querySelectorAll('.note-section[data-open]');
+
+      // Initialize: set max-height on already-open sections
+      sections.forEach(function (section) {
+        var content = section.querySelector('.accordion-content');
+        if (section.getAttribute('data-open') === 'true' && content) {
+          content.style.maxHeight = content.scrollHeight + 'px';
+        }
+      });
+
+      // Handle clicks
+      document.addEventListener('click', function (e) {
+        var header = e.target.closest('.accordion-header');
+        if (!header) return;
+
+        var section = header.closest('.note-section');
+        if (!section) return;
+
+        var isOpen = section.getAttribute('data-open') === 'true';
+        var content = section.querySelector('.accordion-content');
+        if (!content) return;
+
+        if (isOpen) {
+          // Collapse
+          content.style.maxHeight = content.scrollHeight + 'px';
+          // Force reflow so the browser registers the starting value
+          content.offsetHeight;
+          content.style.maxHeight = '0';
+          section.setAttribute('data-open', 'false');
+          header.setAttribute('aria-expanded', 'false');
+        } else {
+          // Expand
+          section.setAttribute('data-open', 'true');
+          header.setAttribute('aria-expanded', 'true');
+          content.style.maxHeight = content.scrollHeight + 'px';
+
+          // After transition, remove fixed max-height so content reflows naturally
+          content.addEventListener('transitionend', function handler() {
+            if (section.getAttribute('data-open') === 'true') {
+              content.style.maxHeight = 'none';
+            }
+            content.removeEventListener('transitionend', handler);
+          });
+        }
+      });
+    })();
+  </script>
+
+</body>
+</html>
